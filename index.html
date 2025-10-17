@@ -68,7 +68,7 @@
 
         .navbar-brand {
             font-weight: 800;
-            font-size: 1.8rem;
+            font-size: 1.6rem;
             background: var(--primary-gradient);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
@@ -78,13 +78,13 @@
         .nav-link {
             color: #fff !important;
             font-weight: 600;
-            padding: 0.6rem 1.2rem !important;
+            padding: 0.5rem 1rem !important;
             margin: 0 0.2rem;
-            border-radius: 12px;
+            border-radius: 10px;
             transition: all 0.3s ease;
             position: relative;
             overflow: hidden;
-            font-size: 0.9rem;
+            font-size: 0.85rem;
         }
 
         .nav-link::before {
@@ -97,7 +97,7 @@
             background: var(--primary-gradient);
             transition: left 0.3s ease;
             z-index: -1;
-            border-radius: 12px;
+            border-radius: 10px;
         }
 
         .nav-link:hover::before,
@@ -106,8 +106,8 @@
         }
 
         .nav-link i {
-            margin-right: 0.4rem;
-            font-size: 1rem;
+            margin-right: 0.3rem;
+            font-size: 0.9rem;
         }
 
         /* Основной контент */
@@ -128,7 +128,7 @@
         @keyframes fadeInUp {
             from {
                 opacity: 0;
-                transform: translateY(20px);
+                transform: translateY(15px);
             }
             to {
                 opacity: 1;
@@ -136,14 +136,14 @@
             }
         }
 
-        /* УМЕНЬШЕННЫЕ Карточки статистики */
+        /* КОМПАКТНЫЕ Карточки статистики */
         .stats-card {
             background: var(--glass-bg);
             backdrop-filter: blur(20px);
             border: 1px solid var(--glass-border);
-            border-radius: 16px;
-            padding: 1.5rem;
-            margin-bottom: 1.5rem;
+            border-radius: 12px;
+            padding: 1rem;
+            margin-bottom: 1rem;
             transition: all 0.3s ease;
             position: relative;
             overflow: hidden;
@@ -156,79 +156,16 @@
             top: 0;
             left: 0;
             right: 0;
-            height: 3px;
+            height: 2px;
             background: var(--primary-gradient);
         }
 
         .stats-card:hover {
-            transform: translateY(-5px);
+            transform: translateY(-3px);
             box-shadow: var(--shadow-hover);
         }
 
         .stats-card .icon {
-            font-size: 2rem;
-            margin-bottom: 0.8rem;
-            background: var(--primary-gradient);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
-        }
-
-        .stats-card .number {
-            font-size: 1.8rem;
-            font-weight: 800;
-            margin-bottom: 0.3rem;
-            background: linear-gradient(135deg, #fff 0%, #a8edea 100%);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
-            line-height: 1;
-        }
-
-        .stats-card .label {
-            font-size: 0.85rem;
-            color: rgba(255, 255, 255, 0.8);
-            font-weight: 600;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-            line-height: 1.2;
-        }
-
-        /* УМЕНЬШЕННАЯ Секция заголовков */
-        .section-header {
-            text-align: center;
-            margin-bottom: 2rem;
-            position: relative;
-        }
-
-        .section-header h1 {
-            font-size: 2.2rem;
-            font-weight: 800;
-            background: linear-gradient(135deg, #fff 0%, #667eea 100%);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
-            margin-bottom: 0.5rem;
-        }
-
-        .section-header p {
-            font-size: 1rem;
-            color: rgba(255, 255, 255, 0.7);
-            max-width: 500px;
-            margin: 0 auto;
-        }
-
-        /* УМЕНЬШЕННЫЕ карточки детальной статистики */
-        .detail-stats {
-            background: var(--glass-bg);
-            backdrop-filter: blur(20px);
-            border: 1px solid var(--glass-border);
-            border-radius: 16px;
-            padding: 1.5rem;
-            margin-top: 1rem;
-        }
-
-        .detail-stats .icon {
             font-size: 1.5rem;
             margin-bottom: 0.5rem;
             background: var(--primary-gradient);
@@ -237,10 +174,78 @@
             background-clip: text;
         }
 
-        .detail-stats .number {
+        .stats-card .number {
             font-size: 1.4rem;
-            font-weight: 700;
+            font-weight: 800;
             margin-bottom: 0.2rem;
+            background: linear-gradient(135deg, #fff 0%, #a8edea 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            line-height: 1;
+        }
+
+        .stats-card .label {
+            font-size: 0.75rem;
+            color: rgba(255, 255, 255, 0.8);
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.3px;
+            line-height: 1.2;
+        }
+
+        /* КОМПАКТНАЯ Секция заголовков */
+        .section-header {
+            text-align: center;
+            margin-bottom: 1.5rem;
+        }
+
+        .section-header h1 {
+            font-size: 1.8rem;
+            font-weight: 800;
+            background: linear-gradient(135deg, #fff 0%, #667eea 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 0.3rem;
+        }
+
+        .section-header p {
+            font-size: 0.9rem;
+            color: rgba(255, 255, 255, 0.7);
+            max-width: 400px;
+            margin: 0 auto;
+        }
+
+        /* КОМПАКТНАЯ детальная статистика */
+        .detail-stats {
+            background: var(--glass-bg);
+            backdrop-filter: blur(20px);
+            border: 1px solid var(--glass-border);
+            border-radius: 12px;
+            padding: 1rem;
+            margin-top: 0.5rem;
+        }
+
+        .detail-stats h5 {
+            font-size: 0.9rem;
+            margin-bottom: 0.8rem !important;
+            color: rgba(255, 255, 255, 0.9);
+        }
+
+        .detail-stats .icon {
+            font-size: 1.2rem;
+            margin-bottom: 0.3rem;
+            background: var(--primary-gradient);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .detail-stats .number {
+            font-size: 1.1rem;
+            font-weight: 700;
+            margin-bottom: 0.1rem;
             background: linear-gradient(135deg, #fff 0%, #a8edea 100%);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
@@ -248,26 +253,26 @@
         }
 
         .detail-stats .label {
-            font-size: 0.75rem;
+            font-size: 0.65rem;
             color: rgba(255, 255, 255, 0.8);
             font-weight: 600;
             text-transform: uppercase;
-            letter-spacing: 0.5px;
+            letter-spacing: 0.2px;
         }
 
         /* Галерея медиа */
         .media-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-            gap: 1.5rem;
-            margin-top: 1.5rem;
+            grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+            gap: 1rem;
+            margin-top: 1rem;
         }
 
         .media-card {
             background: var(--glass-bg);
             backdrop-filter: blur(20px);
             border: 1px solid var(--glass-border);
-            border-radius: 16px;
+            border-radius: 12px;
             overflow: hidden;
             transition: all 0.3s ease;
             position: relative;
@@ -280,7 +285,7 @@
 
         .media-preview {
             width: 100%;
-            height: 160px;
+            height: 140px;
             background: var(--dark-gradient);
             display: flex;
             align-items: center;
@@ -290,23 +295,23 @@
         }
 
         .media-preview i {
-            font-size: 3rem;
+            font-size: 2.5rem;
             color: rgba(255, 255, 255, 0.3);
         }
 
         .media-info {
-            padding: 1.2rem;
+            padding: 1rem;
         }
 
         .media-type {
             display: inline-block;
-            padding: 0.25rem 0.8rem;
-            border-radius: 12px;
-            font-size: 0.7rem;
+            padding: 0.2rem 0.6rem;
+            border-radius: 8px;
+            font-size: 0.65rem;
             font-weight: 600;
             text-transform: uppercase;
-            letter-spacing: 0.5px;
-            margin-bottom: 0.8rem;
+            letter-spacing: 0.3px;
+            margin-bottom: 0.6rem;
         }
 
         .media-type.photo { background: var(--success-gradient); }
@@ -317,9 +322,9 @@
         .media-type.document { background: #6c757d; }
 
         .media-name {
-            font-size: 0.95rem;
+            font-size: 0.85rem;
             font-weight: 600;
-            margin-bottom: 0.4rem;
+            margin-bottom: 0.3rem;
             color: #fff;
             line-height: 1.3;
         }
@@ -328,14 +333,14 @@
             display: flex;
             justify-content: space-between;
             align-items: center;
-            font-size: 0.8rem;
+            font-size: 0.75rem;
             color: rgba(255, 255, 255, 0.7);
         }
 
         .media-date {
             display: flex;
             align-items: center;
-            gap: 0.3rem;
+            gap: 0.2rem;
         }
 
         /* Загрузка */
@@ -344,17 +349,17 @@
             flex-direction: column;
             align-items: center;
             justify-content: center;
-            min-height: 50vh;
+            min-height: 40vh;
         }
 
         .loader {
-            width: 50px;
-            height: 50px;
+            width: 40px;
+            height: 40px;
             border: 3px solid rgba(255, 255, 255, 0.1);
             border-top: 3px solid var(--primary-gradient);
             border-radius: 50%;
             animation: spin 1s linear infinite;
-            margin-bottom: 1.5rem;
+            margin-bottom: 1rem;
         }
 
         @keyframes spin {
@@ -363,7 +368,7 @@
         }
 
         .loading-text {
-            font-size: 1rem;
+            font-size: 0.9rem;
             color: rgba(255, 255, 255, 0.8);
             text-align: center;
         }
@@ -373,55 +378,55 @@
             background: var(--glass-bg);
             backdrop-filter: blur(20px);
             border: 1px solid var(--glass-border);
-            border-radius: 16px;
-            padding: 2rem;
+            border-radius: 12px;
+            padding: 1.5rem;
             text-align: center;
-            margin: 1.5rem 0;
+            margin: 1rem 0;
         }
 
         .error-icon {
-            font-size: 3rem;
+            font-size: 2.5rem;
             color: #ff6b6b;
-            margin-bottom: 1rem;
+            margin-bottom: 0.8rem;
         }
 
         .error-buttons {
             display: flex;
-            gap: 0.8rem;
+            gap: 0.6rem;
             justify-content: center;
-            margin-top: 1.5rem;
+            margin-top: 1rem;
         }
 
         /* Адаптивность */
         @media (max-width: 768px) {
             .section-header h1 {
-                font-size: 1.8rem;
+                font-size: 1.5rem;
             }
             
             .stats-card {
-                padding: 1.2rem;
+                padding: 0.8rem;
             }
             
             .stats-card .number {
-                font-size: 1.5rem;
+                font-size: 1.2rem;
             }
             
             .media-grid {
                 grid-template-columns: 1fr;
-                gap: 1rem;
+                gap: 0.8rem;
             }
             
             .nav-link {
-                padding: 0.5rem 1rem !important;
-                font-size: 0.85rem;
+                padding: 0.4rem 0.8rem !important;
+                font-size: 0.8rem;
             }
 
             .detail-stats {
-                padding: 1rem;
+                padding: 0.8rem;
             }
 
             .detail-stats .number {
-                font-size: 1.2rem;
+                font-size: 1rem;
             }
         }
 
@@ -433,12 +438,17 @@
         @keyframes fadeIn {
             from {
                 opacity: 0;
-                transform: translateY(15px);
+                transform: translateY(10px);
             }
             to {
                 opacity: 1;
                 transform: translateY(0);
             }
+        }
+
+        /* Уменьшенные отступы между строками */
+        .row {
+            margin-bottom: 0.5rem;
         }
     </style>
 </head>
@@ -469,7 +479,7 @@
     </nav>
 
     <!-- Основной контент -->
-    <div class="container mt-4">
+    <div class="container mt-3">
         <!-- Загрузка -->
         <div id="loadingSection" class="loading-section">
             <div class="loader"></div>
@@ -482,7 +492,7 @@
                 <i class="fas fa-exclamation-triangle"></i>
             </div>
             <h3>Произошла ошибка</h3>
-            <p id="errorMessage" class="mt-3"></p>
+            <p id="errorMessage" class="mt-2"></p>
             <div class="error-buttons">
                 <button class="btn-glass" onclick="location.reload()">
                     <i class="fas fa-redo"></i> Попробовать снова
@@ -518,7 +528,7 @@
                                 <i class="fas fa-font"></i>
                             </div>
                             <div class="number" id="textMessages">0</div>
-                            <div class="label">Текстовых сообщений</div>
+                            <div class="label">Текстовых</div>
                         </div>
                     </div>
                     <div class="col-md-3">
@@ -536,51 +546,51 @@
                                 <i class="fas fa-users"></i>
                             </div>
                             <div class="number" id="uniqueSenders">0</div>
-                            <div class="label">Уникальных отправителей</div>
+                            <div class="label">Отправителей</div>
                         </div>
                     </div>
                 </div>
 
                 <!-- Детальная статистика медиа -->
                 <div class="detail-stats">
-                    <h5 class="text-center mb-4">📁 Детализация медиафайлов</h5>
+                    <h5 class="text-center mb-3">📁 Детализация медиафайлов</h5>
                     <div class="row text-center">
-                        <div class="col-md-2 mb-3">
+                        <div class="col-md-2 mb-2">
                             <div class="icon">
                                 <i class="fas fa-camera"></i>
                             </div>
                             <div class="number" id="photoCount">0</div>
                             <div class="label">Фото</div>
                         </div>
-                        <div class="col-md-2 mb-3">
+                        <div class="col-md-2 mb-2">
                             <div class="icon">
                                 <i class="fas fa-video"></i>
                             </div>
                             <div class="number" id="videoCount">0</div>
                             <div class="label">Видео</div>
                         </div>
-                        <div class="col-md-2 mb-3">
+                        <div class="col-md-2 mb-2">
                             <div class="icon">
                                 <i class="fas fa-microphone"></i>
                             </div>
                             <div class="number" id="audioCount">0</div>
                             <div class="label">Аудио</div>
                         </div>
-                        <div class="col-md-2 mb-3">
+                        <div class="col-md-2 mb-2">
                             <div class="icon">
                                 <i class="fas fa-microphone-alt"></i>
                             </div>
                             <div class="number" id="voiceCount">0</div>
                             <div class="label">Голосовые</div>
                         </div>
-                        <div class="col-md-2 mb-3">
+                        <div class="col-md-2 mb-2">
                             <div class="icon">
                                 <i class="fas fa-smile"></i>
                             </div>
                             <div class="number" id="stickerCount">0</div>
                             <div class="label">Стикеры</div>
                         </div>
-                        <div class="col-md-2 mb-3">
+                        <div class="col-md-2 mb-2">
                             <div class="icon">
                                 <i class="fas fa-file"></i>
                             </div>
@@ -602,11 +612,11 @@
                     <!-- Медиафайлы загружаются через JS -->
                 </div>
 
-                <div class="text-center mt-4" id="mediaEmptyState" style="display: none;">
+                <div class="text-center mt-3" id="mediaEmptyState" style="display: none;">
                     <div class="stats-card">
-                        <i class="fas fa-inbox fa-3x mb-3" style="color: rgba(255,255,255,0.3);"></i>
+                        <i class="fas fa-inbox fa-2x mb-2" style="color: rgba(255,255,255,0.3);"></i>
                         <h4>Медиафайлов пока нет</h4>
-                        <p class="mt-2">Здесь появятся все сохраненные фото, видео и аудио файлы</p>
+                        <p class="mt-1">Здесь появятся все сохраненные фото, видео и аудио файлы</p>
                     </div>
                 </div>
             </div>
@@ -790,16 +800,16 @@
                 backdrop-filter: blur(20px);
                 border: 1px solid var(--glass-border);
                 color: #fff;
-                padding: 0.6rem 1.5rem;
-                border-radius: 12px;
+                padding: 0.5rem 1.2rem;
+                border-radius: 10px;
                 font-weight: 600;
                 transition: all 0.3s ease;
                 text-decoration: none;
                 display: inline-flex;
                 align-items: center;
-                gap: 0.4rem;
+                gap: 0.3rem;
                 cursor: pointer;
-                font-size: 0.9rem;
+                font-size: 0.85rem;
             }
             .btn-glass:hover {
                 background: var(--primary-gradient);
