@@ -1,4 +1,4 @@
-// js/app.js - обновленная версия с поддержкой медиа
+// js/app.js - обновленная версия для компактного формата данных
 
 // Глобальные переменные
 let activityChart = null;
@@ -14,12 +14,27 @@ function decodeDataFromURL() {
             throw new Error('Нет данных в URL');
         }
 
-        // Декодируем из base64
-        const jsonStr = atob(encodedData);
-        const userData = JSON.parse(jsonStr);
-        
-        console.log('📊 Данные пользователя загружены:', userData);
-        return userData;
+        // Пытаемся сначала декодировать как сжатые данные
+        try {
+            // Декодируем из base64
+            const compressedData = Uint8Array.from(atob(encodedData), c => c.charCodeAt(0));
+            
+            // Декомпрессия с помощью pako (zlib)
+            const jsonStr = pako.inflate(compressedData, { to: 'string' });
+            const userData = JSON.parse(jsonStr);
+            
+            console.log('📊 Данные пользователя загружены (сжатый формат):', userData);
+            return userData;
+        } catch (compressionError) {
+            console.log('⚠️ Не удалось декомпрессировать, пробуем простой base64...');
+            
+            // Резервный вариант - простой base64
+            const jsonStr = atob(encodedData);
+            const userData = JSON.parse(jsonStr);
+            
+            console.log('📊 Данные пользователя загружены (простой формат):', userData);
+            return userData;
+        }
     } catch (error) {
         console.error('❌ Ошибка декодирования данных:', error);
         throw error;
@@ -57,8 +72,8 @@ function loadStatsSection() {
     const userData = window.userData;
     
     // Обновляем время последнего обновления
-    document.getElementById('lastUpdate').textContent = 
-        `Последнее обновление: ${new Date().toLocaleString()}`;
+    const updateTime = userData.ts ? new Date(userData.ts).toLocaleString() : new Date().toLocaleString();
+    document.getElementById('lastUpdate').textContent = `Последнее обновление: ${updateTime}`;
     
     // Загружаем карточки статистики
     const statsCards = document.getElementById('statsCards');
@@ -67,7 +82,7 @@ function loadStatsSection() {
             <div class="card stats-card h-100">
                 <div class="card-body text-center">
                     <i class="fas fa-comments fa-2x text-primary mb-2"></i>
-                    <h3>${userData.total_messages}</h3>
+                    <h3>${userData.total || 0}</h3>
                     <p class="text-muted mb-0">Всего сообщений</p>
                 </div>
             </div>
@@ -76,7 +91,7 @@ function loadStatsSection() {
             <div class="card stats-card h-100">
                 <div class="card-body text-center">
                     <i class="fas fa-font fa-2x text-success mb-2"></i>
-                    <h3>${userData.text_messages}</h3>
+                    <h3>${userData.text || 0}</h3>
                     <p class="text-muted mb-0">Текстовых</p>
                 </div>
             </div>
@@ -85,7 +100,7 @@ function loadStatsSection() {
             <div class="card stats-card h-100">
                 <div class="card-body text-center">
                     <i class="fas fa-photo-video fa-2x text-warning mb-2"></i>
-                    <h3>${userData.media_messages}</h3>
+                    <h3>${userData.media || 0}</h3>
                     <p class="text-muted mb-0">Медиафайлов</p>
                 </div>
             </div>
@@ -94,7 +109,7 @@ function loadStatsSection() {
             <div class="card stats-card h-100">
                 <div class="card-body text-center">
                     <i class="fas fa-users fa-2x text-info mb-2"></i>
-                    <h3>${userData.unique_senders}</h3>
+                    <h3>${userData.senders || 0}</h3>
                     <p class="text-muted mb-0">Отправителей</p>
                 </div>
             </div>
@@ -102,12 +117,12 @@ function loadStatsSection() {
     `;
     
     // Создаем графики
-    createCharts();
+    createCharts(userData);
 }
 
 // Создание графиков
-function createCharts() {
-    const userData = window.userData;
+function createCharts(userData) {
+    const mStats = userData.m_stats || {};
     
     // График активности (упрощенный)
     const activityCtx = document.getElementById('activityChart').getContext('2d');
@@ -144,19 +159,18 @@ function createCharts() {
         mediaChart.destroy();
     }
     
-    const mediaStats = userData.media_stats;
     mediaChart = new Chart(mediaCtx, {
         type: 'doughnut',
         data: {
             labels: ['Фото', 'Видео', 'Голосовые', 'Аудио', 'Стикеры', 'Документы'],
             datasets: [{
                 data: [
-                    mediaStats.photo || 0,
-                    mediaStats.video || 0, 
-                    mediaStats.voice || 0,
-                    mediaStats.audio || 0,
-                    mediaStats.sticker || 0,
-                    mediaStats.document || 0
+                    mStats.p || 0,  // photo
+                    mStats.v || 0,  // video
+                    mStats.vo || 0, // voice
+                    mStats.a || 0,  // audio
+                    mStats.s || 0,  // sticker
+                    mStats.d || 0   // document
                 ],
                 backgroundColor: [
                     '#ff6b6b', '#4834d4', '#00d2d3', '#00b894', '#fdcb6e', '#a29bfe'
@@ -179,7 +193,9 @@ function loadMessagesSection() {
     const userData = window.userData;
     const messagesTable = document.getElementById('messagesTable');
     
-    if (userData.recent_messages.length === 0) {
+    const messages = userData.messages || [];
+    
+    if (messages.length === 0) {
         messagesTable.innerHTML = `
             <tr>
                 <td colspan="4" class="text-center text-muted py-4">
@@ -191,21 +207,21 @@ function loadMessagesSection() {
         return;
     }
     
-    messagesTable.innerHTML = userData.recent_messages.map(message => {
-        const icon = message.is_media ? 
-            getMediaIcon(message.media_type) : 
+    messagesTable.innerHTML = messages.map(message => {
+        const icon = message.m ? 
+            getMediaIcon(message.ty) : 
             '<i class="fas fa-text-width text-primary"></i>';
         
-        const content = message.is_media ? 
-            `<span class="badge bg-secondary">${getMediaTypeText(message.media_type)}</span>` :
-            (message.text || '').substring(0, 100) + (message.text.length > 100 ? '...' : '');
+        const content = message.m ? 
+            `<span class="badge bg-secondary">${getMediaTypeText(message.ty)}</span>` :
+            (message.t || '') + (message.t && message.t.length >= 50 ? '...' : '');
         
         return `
             <tr>
                 <td>${icon}</td>
-                <td>${message.user_login}</td>
+                <td>${message.u || 'Неизвестно'}</td>
                 <td>${content}</td>
-                <td>${message.date}</td>
+                <td>${message.d || 'Неизвестно'}</td>
             </tr>
         `;
     }).join('');
@@ -217,13 +233,13 @@ function loadMediaSection() {
     const mediaStatsCards = document.getElementById('mediaStatsCards');
     
     // Статистика по типам медиа
-    const mediaStats = userData.media_stats;
+    const mStats = userData.m_stats || {};
     mediaStatsCards.innerHTML = `
         <div class="col-md-2 col-6 mb-3">
             <div class="card text-center stats-card">
                 <div class="card-body">
                     <i class="fas fa-image fa-2x text-primary"></i>
-                    <h5 class="mt-2">${mediaStats.photo || 0}</h5>
+                    <h5 class="mt-2">${mStats.p || 0}</h5>
                     <p class="text-muted mb-0">Фото</p>
                 </div>
             </div>
@@ -232,7 +248,7 @@ function loadMediaSection() {
             <div class="card text-center stats-card">
                 <div class="card-body">
                     <i class="fas fa-video fa-2x text-success"></i>
-                    <h5 class="mt-2">${mediaStats.video || 0}</h5>
+                    <h5 class="mt-2">${mStats.v || 0}</h5>
                     <p class="text-muted mb-0">Видео</p>
                 </div>
             </div>
@@ -241,7 +257,7 @@ function loadMediaSection() {
             <div class="card text-center stats-card">
                 <div class="card-body">
                     <i class="fas fa-microphone fa-2x text-info"></i>
-                    <h5 class="mt-2">${mediaStats.voice || 0}</h5>
+                    <h5 class="mt-2">${mStats.vo || 0}</h5>
                     <p class="text-muted mb-0">Голосовые</p>
                 </div>
             </div>
@@ -250,7 +266,7 @@ function loadMediaSection() {
             <div class="card text-center stats-card">
                 <div class="card-body">
                     <i class="fas fa-music fa-2x text-warning"></i>
-                    <h5 class="mt-2">${mediaStats.audio || 0}</h5>
+                    <h5 class="mt-2">${mStats.a || 0}</h5>
                     <p class="text-muted mb-0">Аудио</p>
                 </div>
             </div>
@@ -259,7 +275,7 @@ function loadMediaSection() {
             <div class="card text-center stats-card">
                 <div class="card-body">
                     <i class="fas fa-sticky-note fa-2x text-danger"></i>
-                    <h5 class="mt-2">${mediaStats.sticker || 0}</h5>
+                    <h5 class="mt-2">${mStats.s || 0}</h5>
                     <p class="text-muted mb-0">Стикеры</p>
                 </div>
             </div>
@@ -268,7 +284,7 @@ function loadMediaSection() {
             <div class="card text-center stats-card">
                 <div class="card-body">
                     <i class="fas fa-file fa-2x text-secondary"></i>
-                    <h5 class="mt-2">${mediaStats.document || 0}</h5>
+                    <h5 class="mt-2">${mStats.d || 0}</h5>
                     <p class="text-muted mb-0">Документы</p>
                 </div>
             </div>
@@ -276,7 +292,7 @@ function loadMediaSection() {
     `;
     
     // Создаем галерею медиафайлов
-    createMediaGallery(userData.media_files);
+    createMediaGallery(userData.files || []);
 }
 
 // Создание галереи медиафайлов
@@ -313,17 +329,23 @@ function createMediaGallery(mediaFiles) {
         `;
         
         const mediaGrid = document.getElementById('mediaGrid');
-        mediaGrid.innerHTML = mediaFiles.map(media => `
-            <div class="media-item" onclick="openMediaModal('${media.path}', '${media.media_type}')">
-                <div class="media-preview media-${media.media_type}">
-                    ${getMediaPreviewIcon(media.media_type)}
+        mediaGrid.innerHTML = mediaFiles.map(media => {
+            // Восстанавливаем полный путь к файлу
+            const fullPath = `media/user_${window.userData.uid}/${media.p}`;
+            
+            return `
+                <div class="media-item" onclick="openMediaModal('${fullPath}', '${media.t}')">
+                    <div class="media-preview media-${media.t}">
+                        ${getMediaPreviewIcon(media.t)}
+                    </div>
+                    <div class="media-info">
+                        <div class="media-type">${getMediaTypeText(media.t)}</div>
+                        <div class="media-date">${media.d}</div>
+                        <small class="text-muted">${media.u}</small>
+                    </div>
                 </div>
-                <div class="media-info">
-                    <div class="media-type">${getMediaTypeText(media.media_type)}</div>
-                    <div class="media-date">${media.date}</div>
-                </div>
-            </div>
-        `).join('');
+            `;
+        }).join('');
     }
     
     mediaContainer.appendChild(galleryRow);
@@ -360,7 +382,7 @@ function openMediaModal(filePath, mediaType) {
     
     switch (mediaType) {
         case 'photo':
-            contentHtml = `<img src="${filePath}" class="media-content" alt="Фото">`;
+            contentHtml = `<img src="${filePath}" class="media-content" alt="Фото" onerror="this.style.display='none'; document.getElementById('fallbackContent').style.display='block';">`;
             break;
         case 'video':
             contentHtml = `<video controls class="media-content">
@@ -386,6 +408,17 @@ function openMediaModal(filePath, mediaType) {
                 </div>
             `;
     }
+    
+    // Добавляем fallback контент
+    contentHtml += `
+        <div id="fallbackContent" style="display: none;" class="text-center py-4">
+            <i class="fas fa-exclamation-triangle fa-3x text-warning mb-3"></i>
+            <p>Не удалось загрузить медиафайл</p>
+            <a href="${filePath}" class="btn btn-outline-primary" download>
+                <i class="fas fa-download"></i> Скачать файл
+            </a>
+        </div>
+    `;
     
     mediaContent.innerHTML = contentHtml;
     
@@ -433,6 +466,15 @@ function getMediaTypeText(mediaType) {
     return types[mediaType] || 'Файл';
 }
 
+// Функция для обработки ошибок загрузки медиа
+function handleMediaError(element) {
+    element.style.display = 'none';
+    const fallback = document.getElementById('fallbackContent');
+    if (fallback) {
+        fallback.style.display = 'block';
+    }
+}
+
 // Инициализация при загрузке страницы
 document.addEventListener('DOMContentLoaded', function() {
     try {
@@ -462,3 +504,37 @@ document.addEventListener('DOMContentLoaded', function() {
 function refreshData() {
     location.reload();
 }
+
+// Обработчик для навигации (исправляем ошибку event)
+document.addEventListener('DOMContentLoaded', function() {
+    // Вешаем обработчики на навигационные ссылки
+    document.querySelectorAll('.nav-link').forEach(link => {
+        link.addEventListener('click', function(e) {
+            e.preventDefault();
+            const sectionName = this.getAttribute('onclick').match(/showSection\('([^']+)'\)/)[1];
+            
+            // Скрываем все секции
+            document.querySelectorAll('.content-section').forEach(section => {
+                section.style.display = 'none';
+            });
+            
+            // Деактивируем все ссылки навигации
+            document.querySelectorAll('.nav-link').forEach(navLink => {
+                navLink.classList.remove('active');
+            });
+            
+            // Показываем выбранную секцию и активируем ссылку
+            document.getElementById(sectionName + 'Section').style.display = 'block';
+            this.classList.add('active');
+            
+            // Загружаем данные для секции
+            if (sectionName === 'stats') {
+                loadStatsSection();
+            } else if (sectionName === 'messages') {
+                loadMessagesSection();
+            } else if (sectionName === 'media') {
+                loadMediaSection();
+            }
+        });
+    });
+});
