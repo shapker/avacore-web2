@@ -1,101 +1,140 @@
-/* Основные стили Avacore */
-:root {
-    --primary-color: #007bff;
-    --success-color: #28a745;
-    --info-color: #17a2b8;
-    --warning-color: #ffc107;
-    --danger-color: #dc3545;
+/* Стили для Avacore Web App */
+.media-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+    gap: 15px;
+    margin-top: 20px;
 }
 
-body {
-    background-color: #f8f9fa;
-    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+.media-item {
+    border-radius: 10px;
+    overflow: hidden;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    background: white;
+    cursor: pointer;
 }
 
-.navbar-brand {
-    font-weight: 700;
-    font-size: 1.5rem;
+.media-item:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 5px 20px rgba(0,0,0,0.2);
 }
 
-.content-section {
-    display: none;
-    animation: fadeIn 0.5s ease-in;
+.media-preview {
+    width: 100%;
+    height: 120px;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-size: 2rem;
 }
 
-#statsSection {
-    display: block;
+.media-info {
+    padding: 10px;
+    text-align: center;
 }
 
-@keyframes fadeIn {
-    from { opacity: 0; transform: translateY(10px); }
-    to { opacity: 1; transform: translateY(0); }
+.media-type {
+    font-size: 0.8rem;
+    color: #6c757d;
+    text-transform: capitalize;
+}
+
+.media-date {
+    font-size: 0.7rem;
+    color: #adb5bd;
+}
+
+.media-modal .modal-content {
+    border-radius: 15px;
+    border: none;
+}
+
+.media-modal .modal-header {
+    border-bottom: 1px solid #dee2e6;
+    background: #f8f9fa;
+    border-radius: 15px 15px 0 0;
+}
+
+.media-modal .modal-body {
+    text-align: center;
+    padding: 30px;
+}
+
+.media-content {
+    max-width: 100%;
+    max-height: 70vh;
+    border-radius: 10px;
+}
+
+.audio-player {
+    width: 100%;
+    margin: 20px 0;
 }
 
 .stats-card {
-    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    transition: transform 0.3s ease;
     border: none;
-    border-radius: 10px;
-    overflow: hidden;
+    border-radius: 15px;
+    box-shadow: 0 3px 15px rgba(0,0,0,0.1);
 }
 
 .stats-card:hover {
     transform: translateY(-5px);
-    box-shadow: 0 8px 25px rgba(0,0,0,0.15);
 }
 
-.card-header {
-    background: linear-gradient(135deg, var(--primary-color), #0056b3);
-    color: white;
-    border: none;
-    font-weight: 600;
+.content-section {
+    animation: fadeIn 0.5s ease-in;
 }
 
-.bg-primary { background: linear-gradient(135deg, var(--primary-color), #0056b3) !important; }
-.bg-success { background: linear-gradient(135deg, var(--success-color), #1e7e34) !important; }
-.bg-info { background: linear-gradient(135deg, var(--info-color), #138496) !important; }
-.bg-warning { background: linear-gradient(135deg, var(--warning-color), #e0a800) !important; }
-
-.table th {
-    border-top: none;
-    background-color: #f8f9fa;
-    font-weight: 600;
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(20px); }
+    to { opacity: 1; transform: translateY(0); }
 }
 
-/* Адаптивность */
+.navbar-brand {
+    font-weight: bold;
+    font-size: 1.5rem;
+}
+
+.nav-link {
+    border-radius: 20px;
+    margin: 0 5px;
+    transition: all 0.3s ease;
+}
+
+.nav-link.active {
+    background: rgba(255,255,255,0.2);
+}
+
+/* Адаптивность для мобильных устройств */
 @media (max-width: 768px) {
-    .container {
-        padding: 0 10px;
+    .media-grid {
+        grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+        gap: 10px;
+    }
+    
+    .media-preview {
+        height: 100px;
     }
     
     .stats-card .card-body {
-        padding: 1rem;
-    }
-    
-    h1 {
-        font-size: 1.5rem;
-    }
-    
-    .navbar-brand {
-        font-size: 1.2rem;
+        padding: 15px;
     }
 }
 
-/* Загрузка */
-.spinner-border {
+/* Стили для загрузки */
+.loading-spinner {
     width: 3rem;
     height: 3rem;
 }
 
-/* Уведомления */
-.alert {
-    border: none;
-    border-radius: 10px;
-    border-left: 4px solid;
-}
-
-/* Футер */
-footer {
-    margin-top: 3rem;
-    background: white !important;
-    border-top: 1px solid #dee2e6;
-}
+/* Кастомные цвета для разных типов медиа */
+.media-photo { background: linear-gradient(135deg, #ff6b6b 0%, #ee5a24 100%); }
+.media-video { background: linear-gradient(135deg, #4834d4 0%, #686de0 100%); }
+.media-voice { background: linear-gradient(135deg, #00d2d3 0%, #54a0ff 100%); }
+.media-audio { background: linear-gradient(135deg, #00b894 0%, #55efc4 100%); }
+.media-sticker { background: linear-gradient(135deg, #fdcb6e 0%, #e17055 100%); }
+.media-document { background: linear-gradient(135deg, #a29bfe 0%, #6c5ce7 100%); }
