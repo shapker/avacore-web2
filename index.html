@@ -483,6 +483,12 @@
             width: 100%;
             height: 100%;
             object-fit: cover;
+            cursor: pointer;
+            transition: transform 0.3s ease;
+        }
+
+        .media-preview img:hover {
+            transform: scale(1.05);
         }
 
         .media-preview i {
@@ -518,6 +524,43 @@
             font-size: 0.75rem;
             color: var(--text-secondary);
             margin-top: 0.25rem;
+        }
+
+        .media-actions {
+            padding: 0.75rem;
+            display: flex;
+            gap: 0.5rem;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .media-actions .btn {
+            flex: 1;
+            padding: 0.5rem;
+            border: none;
+            border-radius: 10px;
+            font-size: 0.8rem;
+            transition: all 0.3s ease;
+        }
+
+        .media-actions .btn-primary {
+            background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
+            color: white;
+        }
+
+        .media-actions .btn-success {
+            background: linear-gradient(135deg, var(--success) 0%, #34d399 100%);
+            color: white;
+        }
+
+        .media-actions .btn-disabled {
+            background: rgba(255, 255, 255, 0.1);
+            color: rgba(255, 255, 255, 0.5);
+            cursor: not-allowed;
+        }
+
+        .media-actions .btn:hover:not(.btn-disabled) {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
         }
 
         .stats-grid {
@@ -627,6 +670,62 @@
         .load-more-btn:hover {
             background: rgba(255, 255, 255, 0.12);
             transform: translateY(-2px);
+        }
+
+        .notification {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 1050;
+            min-width: 300px;
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 12px;
+            padding: 1rem;
+            color: white;
+            animation: slideInRight 0.3s ease-out;
+        }
+
+        .notification-success {
+            background: var(--success);
+        }
+
+        .notification-error {
+            background: var(--error);
+        }
+
+        .notification-info {
+            background: var(--primary);
+        }
+
+        @keyframes slideInRight {
+            from {
+                transform: translateX(100%);
+                opacity: 0;
+            }
+            to {
+                transform: translateX(0);
+                opacity: 1;
+            }
+        }
+
+        .modal-content {
+            background: rgba(15, 23, 42, 0.95);
+            backdrop-filter: blur(40px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 20px;
+        }
+
+        .modal-header {
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .modal-footer {
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .btn-close-white {
+            filter: invert(1) grayscale(100%) brightness(200%);
         }
     </style>
 </head>
@@ -914,14 +1013,14 @@
             statsCards.innerHTML = cardsHTML;
         }
 
-        // Обновляет превью медиафайлов
+        // Обновляет превью медиафайлов с поддержкой base64
         function updateMediaPreview(data) {
             const mediaPreview = document.getElementById('mediaPreview');
             
-            // Фильтруем только медиафайлы
-            const mediaFiles = data.recent_messages ? data.recent_messages.filter(msg => msg.is_media) : [];
+            // Используем массив media_files, который теперь приходит от бота
+            const mediaFiles = data.media_files || [];
             
-            if (!mediaFiles || mediaFiles.length === 0) {
+            if (mediaFiles.length === 0) {
                 mediaPreview.innerHTML = `
                     <div class="empty-state">
                         <i class="fas fa-inbox"></i>
@@ -933,31 +1032,137 @@
             
             let previewHTML = '';
             
-            mediaFiles.forEach(media => {
-                const fileType = getFileType(media.path);
+            mediaFiles.forEach((media, index) => {
+                // Для больших файлов без base64
+                if (media.type === 'large_file' || !media.base64) {
+                    const fileType = getFileType(media.filename || media.path);
+                    const icon = getFileIcon(fileType);
+                    const color = getFileColor(fileType);
+                    
+                    previewHTML += `
+                        <div class="media-item liquid-glass-card" data-type="large">
+                            <div class="media-preview" style="background: linear-gradient(135deg, ${color}20 0%, ${color}40 100%);">
+                                <i class="${icon}" style="color: ${color};"></i>
+                            </div>
+                            <div class="media-info">
+                                <div class="media-type">${fileType}</div>
+                                <div class="media-name">${media.filename || 'Файл'}</div>
+                                <div class="media-date">${media.date || 'Неизвестно'}</div>
+                            </div>
+                            <div class="media-actions">
+                                <button class="btn btn-sm btn-disabled" disabled>
+                                    <i class="fas fa-download"></i> Слишком большой
+                                </button>
+                            </div>
+                        </div>
+                    `;
+                    return;
+                }
+                
+                // Для изображений с base64
+                const fileType = media.type || 'image';
                 const icon = getFileIcon(fileType);
-                const fileName = media.path ? media.path.split('/').pop() : 'Файл';
                 const color = getFileColor(fileType);
-                const isImage = fileType === 'Фото';
+                const isImage = fileType === 'image' || fileType === 'photo';
                 
                 previewHTML += `
-                    <div class="media-item liquid-glass-card">
+                    <div class="media-item liquid-glass-card" data-type="${fileType}">
                         <div class="media-preview" style="background: linear-gradient(135deg, ${color}20 0%, ${color}40 100%);">
-                            ${isImage && media.path ? 
-                                `<img src="${media.path}" alt="${fileName}" onerror="this.style.display='none'; this.parentNode.innerHTML='<i class=\\'${icon}\\' style=\\'color: ${color};\\'></i>'">` : 
-                                `<i class="${icon}" style="color: ${color};"></i>`
-                            }
+                            <img src="${media.base64}" 
+                                 alt="${media.filename}" 
+                                 onclick="openMediaModal('${media.base64.replace(/'/g, "\\'")}', '${media.filename.replace(/'/g, "\\'")}')"
+                                 onerror="this.style.display='none'; this.parentNode.innerHTML='<i class=\\'${icon}\\' style=\\'color: ${color};\\'></i>'">
                         </div>
                         <div class="media-info">
                             <div class="media-type">${fileType}</div>
-                            <div class="media-name">${fileName}</div>
+                            <div class="media-name">${media.filename}</div>
                             <div class="media-date">${media.date || 'Неизвестно'}</div>
+                        </div>
+                        <div class="media-actions">
+                            <button class="btn btn-sm btn-primary" onclick="openMediaModal('${media.base64.replace(/'/g, "\\'")}', '${media.filename.replace(/'/g, "\\'")}')">
+                                <i class="fas fa-expand"></i>
+                            </button>
+                            <button class="btn btn-sm btn-success" onclick="downloadMedia('${media.base64.replace(/'/g, "\\'")}', '${media.filename.replace(/'/g, "\\'")}')">
+                                <i class="fas fa-download"></i>
+                            </button>
                         </div>
                     </div>
                 `;
             });
             
             mediaPreview.innerHTML = previewHTML;
+        }
+
+        // Модальное окно для просмотра медиа
+        function openMediaModal(base64Data, filename) {
+            const modalHtml = `
+            <div class="modal fade" id="mediaModal" tabindex="-1">
+                <div class="modal-dialog modal-xl modal-dialog-centered">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h5 class="modal-title">${filename}</h5>
+                            <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                        </div>
+                        <div class="modal-body text-center p-4">
+                            <img src="${base64Data}" class="img-fluid rounded" style="max-height: 70vh; max-width: 100%;" alt="${filename}">
+                        </div>
+                        <div class="modal-footer">
+                            <button class="btn btn-success me-2" onclick="downloadMedia('${base64Data}', '${filename}')">
+                                <i class="fas fa-download me-2"></i>Скачать
+                            </button>
+                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Закрыть</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            `;
+            
+            // Удаляем старый модал если есть
+            const oldModal = document.getElementById('mediaModal');
+            if (oldModal) oldModal.remove();
+            
+            document.body.insertAdjacentHTML('beforeend', modalHtml);
+            
+            const modal = new bootstrap.Modal(document.getElementById('mediaModal'));
+            modal.show();
+        }
+
+        // Скачивание медиа
+        function downloadMedia(base64Data, filename) {
+            try {
+                const link = document.createElement('a');
+                link.href = base64Data;
+                link.download = filename;
+                link.style.display = 'none';
+                
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
+                
+                showNotification(`Файл ${filename} скачивается`, 'success');
+            } catch (error) {
+                showNotification('Ошибка при скачивании файла', 'error');
+            }
+        }
+
+        // Уведомления
+        function showNotification(message, type = 'info') {
+            const notification = document.createElement('div');
+            notification.className = `notification notification-${type}`;
+            notification.innerHTML = `
+                <div class="d-flex justify-content-between align-items-center">
+                    <span>${message}</span>
+                    <button type="button" class="btn-close btn-close-white" onclick="this.parentElement.parentElement.remove()"></button>
+                </div>
+            `;
+            
+            document.body.appendChild(notification);
+            
+            setTimeout(() => {
+                if (notification.parentNode) {
+                    notification.parentNode.removeChild(notification);
+                }
+            }, 3000);
         }
 
         // Обновляет сообщения
