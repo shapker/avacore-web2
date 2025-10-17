@@ -117,7 +117,7 @@
             border-radius: 25px;
             padding: 8px;
             z-index: 1000;
-            width: 320px;
+            width: 380px;
             box-shadow: 
                 0 20px 40px rgba(0, 0, 0, 0.3),
                 0 0 80px rgba(99, 102, 241, 0.1);
@@ -134,7 +134,7 @@
             background: transparent;
             border: none;
             color: var(--text-secondary);
-            padding: 12px 16px;
+            padding: 12px 14px;
             border-radius: 18px;
             text-decoration: none;
             font-weight: 500;
@@ -143,10 +143,11 @@
             flex-direction: column;
             align-items: center;
             gap: 4px;
-            font-size: 0.8rem;
-            width: 90px;
+            font-size: 0.75rem;
+            width: 80px;
             height: 60px;
             justify-content: center;
+            position: relative;
         }
 
         .nav-btn i {
@@ -166,6 +167,18 @@
                 0 8px 20px rgba(99, 102, 241, 0.4),
                 0 0 20px rgba(99, 102, 241, 0.2);
             transform: translateY(-2px);
+        }
+
+        .nav-btn.active::after {
+            content: '';
+            position: absolute;
+            bottom: -8px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 4px;
+            height: 4px;
+            background: white;
+            border-radius: 50%;
         }
 
         .content-section {
@@ -325,7 +338,7 @@
 
         .media-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
             gap: 1.5rem;
             margin-top: 1rem;
         }
@@ -363,17 +376,24 @@
                 0 0 60px rgba(99, 102, 241, 0.1);
         }
 
-        .media-icon {
+        .media-preview {
             width: 100%;
-            height: 120px;
+            height: 150px;
             display: flex;
             align-items: center;
             justify-content: center;
             background: linear-gradient(135deg, rgba(99, 102, 241, 0.1) 0%, rgba(139, 92, 246, 0.1) 100%);
+            overflow: hidden;
         }
 
-        .media-icon i {
-            font-size: 2.5rem;
+        .media-preview img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .media-preview i {
+            font-size: 3rem;
             animation: float 3s ease-in-out infinite;
         }
 
@@ -449,6 +469,52 @@
             margin-bottom: 1rem;
             opacity: 0.5;
         }
+
+        .support-card {
+            background: var(--glass-card);
+            backdrop-filter: blur(20px);
+            border: 1px solid var(--glass-border);
+            border-radius: 20px;
+            padding: 2rem;
+            text-align: center;
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .support-card:hover {
+            transform: translateY(-5px);
+            border-color: rgba(255, 255, 255, 0.25);
+            box-shadow: 
+                0 15px 30px rgba(0, 0, 0, 0.3),
+                0 0 60px rgba(99, 102, 241, 0.1);
+        }
+
+        .support-icon {
+            font-size: 3rem;
+            margin-bottom: 1.5rem;
+            background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .support-btn {
+            background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
+            color: white;
+            border: none;
+            padding: 0.75rem 1.5rem;
+            border-radius: 12px;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            display: inline-block;
+            margin-top: 1rem;
+        }
+
+        .support-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(99, 102, 241, 0.4);
+            color: white;
+        }
     </style>
 </head>
 <body>
@@ -509,6 +575,22 @@
                 </div>
             </div>
 
+            <!-- Медиа -->
+            <div id="mediaSection" class="content-section">
+                <h1 class="section-title">
+                    <i class="fas fa-photo-video"></i> Медиафайлы
+                </h1>
+                
+                <div class="glass-card">
+                    <div class="card-body">
+                        <h5 class="mb-3"><i class="fas fa-images me-2"></i> Последние медиафайлы</h5>
+                        <div id="mediaPreview" class="media-grid">
+                            <!-- Превью медиафайлов загружается через JS -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+
             <!-- Статистика -->
             <div id="statsSection" class="content-section">
                 <h1 class="section-title">
@@ -543,17 +625,23 @@
                 </div>
             </div>
 
-            <!-- Медиа -->
-            <div id="mediaSection" class="content-section">
+            <!-- Поддержка -->
+            <div id="supportSection" class="content-section">
                 <h1 class="section-title">
-                    <i class="fas fa-photo-video"></i> Медиафайлы
+                    <i class="fas fa-headset"></i> Поддержка
                 </h1>
                 
-                <div class="glass-card">
-                    <div class="card-body">
-                        <h5 class="mb-3"><i class="fas fa-images me-2"></i> Последние медиафайлы</h5>
-                        <div id="mediaPreview" class="media-grid">
-                            <!-- Превью медиафайлов загружается через JS -->
+                <div class="row">
+                    <div class="col-lg-6 mx-auto">
+                        <div class="support-card glass-card">
+                            <div class="support-icon">
+                                <i class="fas fa-comments"></i>
+                            </div>
+                            <h3>Нужна помощь?</h3>
+                            <p class="text-muted mb-4">Наша команда поддержки готова помочь вам с любыми вопросами по работе Avacore</p>
+                            <a href="https://t.me/m/9KYf9LMmOTY6" target="_blank" class="support-btn">
+                                <i class="fas fa-paper-plane me-2"></i>Перейти в чат поддержки
+                            </a>
                         </div>
                     </div>
                 </div>
@@ -568,13 +656,17 @@
                 <i class="fas fa-comments"></i>
                 <span>Сообщения</span>
             </a>
+            <a class="nav-btn" href="#" onclick="showSection('media')">
+                <i class="fas fa-photo-video"></i>
+                <span>Медиа</span>
+            </a>
             <a class="nav-btn" href="#" onclick="showSection('stats')">
                 <i class="fas fa-chart-bar"></i>
                 <span>Статистика</span>
             </a>
-            <a class="nav-btn" href="#" onclick="showSection('media')">
-                <i class="fas fa-photo-video"></i>
-                <span>Медиа</span>
+            <a class="nav-btn" href="#" onclick="showSection('support')">
+                <i class="fas fa-headset"></i>
+                <span>Поддержка</span>
             </a>
         </div>
     </div>
@@ -660,7 +752,10 @@
             document.getElementById(sectionName + 'Section').style.display = 'block';
             
             // Добавляем активный класс к выбранной кнопке
-            event.target.classList.add('active');
+            const activeBtn = document.querySelector(`.nav-btn[onclick="showSection('${sectionName}')"]`);
+            if (activeBtn) {
+                activeBtn.classList.add('active');
+            }
             
             // Перерисовываем графики при показе статистики
             if (sectionName === 'stats' && window.activityChart && window.mediaChart) {
@@ -743,11 +838,15 @@
                 const icon = getFileIcon(fileType);
                 const fileName = media.path.split('/').pop() || 'Файл';
                 const color = getFileColor(fileType);
+                const isImage = fileType === 'Фото';
                 
                 previewHTML += `
                     <div class="media-item">
-                        <div class="media-icon" style="background: linear-gradient(135deg, ${color}20 0%, ${color}40 100%);">
-                            <i class="${icon}" style="color: ${color};"></i>
+                        <div class="media-preview" style="background: linear-gradient(135deg, ${color}20 0%, ${color}40 100%);">
+                            ${isImage && media.path ? 
+                                `<img src="${media.path}" alt="${fileName}" onerror="this.style.display='none'; this.parentNode.innerHTML='<i class=\\'${icon}\\' style=\\'color: ${color};\\'></i>'">` : 
+                                `<i class="${icon}" style="color: ${color};"></i>`
+                            }
                         </div>
                         <div class="media-info">
                             <div class="media-type">${fileType}</div>
@@ -765,11 +864,11 @@
         function getFileType(path) {
             if (!path) return 'Файл';
             
-            if (path.includes('photo')) return 'Фото';
-            if (path.includes('video')) return 'Видео';
+            if (path.includes('photo') || path.includes('.jpg') || path.includes('.jpeg') || path.includes('.png')) return 'Фото';
+            if (path.includes('video') || path.includes('.mp4') || path.includes('.avi') || path.includes('.mov')) return 'Видео';
             if (path.includes('voice')) return 'Голосовое';
-            if (path.includes('audio')) return 'Аудио';
-            if (path.includes('sticker')) return 'Стикер';
+            if (path.includes('audio') || path.includes('.mp3') || path.includes('.wav')) return 'Аудио';
+            if (path.includes('sticker') || path.includes('.webp')) return 'Стикер';
             if (path.includes('document')) return 'Документ';
             
             return 'Файл';
