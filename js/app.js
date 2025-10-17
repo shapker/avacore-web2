@@ -1,6 +1,7 @@
 class AvacoreDashboard {
     constructor() {
         this.data = null;
+        console.log("🔄 AvacoreDashboard инициализирован");
         this.loadDataFromUrl();
     }
 
@@ -8,50 +9,77 @@ class AvacoreDashboard {
         const urlParams = new URLSearchParams(window.location.search);
         const compressedData = urlParams.get('data');
         
+        console.log("🔍 Параметры URL:", window.location.search);
+        console.log("📦 Полученные данные:", compressedData ? `Длина: ${compressedData.length}` : 'Нет данных');
+        
         if (!compressedData) {
-            this.showError('Данные не найдены. Пожалуйста, откройте веб-панель через бота командой /web');
+            this.showError('Данные не найдены в URL. Пожалуйста, откройте веб-панель через бота командой /web');
             return;
         }
         
         try {
+            console.log("🔄 Начинаем декомпрессию данных...");
             this.data = this.decompressData(compressedData);
+            
             if (!this.data) {
-                throw new Error('Неверный формат данных');
+                throw new Error('Неверный формат данных после декомпрессии');
             }
             
+            console.log("✅ Данные успешно загружены:", this.data);
             this.hideLoading();
             this.showMainContent();
             this.showSection('stats');
+            
         } catch (error) {
-            console.error('Ошибка загрузки данных:', error);
-            this.showError('Не удалось загрузить данные. Пожалуйста, откройте веб-панель через бота командой /web');
+            console.error('❌ Ошибка загрузки данных:', error);
+            this.showError(`Не удалось загрузить данные: ${error.message}. Пожалуйста, откройте веб-панель через бота командой /web`);
         }
     }
 
     decompressData(compressedStr) {
         try {
+            console.log("🔧 Декомпрессия данных...");
+            
             // Декодируем base64
             const binaryString = atob(compressedStr);
+            console.log("📐 Двоичная строка:", binaryString.length, "символов");
+            
             const bytes = new Uint8Array(binaryString.length);
             for (let i = 0; i < binaryString.length; i++) {
                 bytes[i] = binaryString.charCodeAt(i);
             }
             
             // Декомпрессия с использованием pako
+            console.log("🎯 Начинаем распаковку...");
             const decompressed = pako.inflate(bytes, { to: 'string' });
-            return JSON.parse(decompressed);
+            console.log("📄 Распакованные данные:", decompressed.length, "символов");
+            
+            const result = JSON.parse(decompressed);
+            console.log("✅ JSON успешно распарсен");
+            return result;
+            
         } catch (error) {
-            console.error('Ошибка декомпрессии:', error);
-            return null;
+            console.error('❌ Ошибка декомпрессии:', error);
+            
+            // Попробуем альтернативный метод - возможно данные не сжаты
+            try {
+                console.log("🔄 Пробуем прямой JSON parse...");
+                return JSON.parse(compressedStr);
+            } catch (e) {
+                console.error('❌ И прямой JSON тоже не сработал:', e);
+                throw new Error(`Декомпрессия не удалась: ${error.message}`);
+            }
         }
     }
 
     hideLoading() {
         document.getElementById('loadingSection').style.display = 'none';
+        console.log("👋 Загрузка скрыта");
     }
 
     showMainContent() {
         document.getElementById('mainContent').style.display = 'block';
+        console.log("📱 Основной контент показан");
         
         // Обновляем время последнего обновления
         if (this.data.timestamp) {
@@ -65,36 +93,33 @@ class AvacoreDashboard {
         document.getElementById('loadingSection').style.display = 'none';
         document.getElementById('errorSection').style.display = 'block';
         document.getElementById('errorMessage').textContent = message;
+        console.error("🚨 Ошибка:", message);
     }
 
+    // ... остальные функции остаются без изменений ...
     showSection(sectionName) {
-        // Скрываем все секции
         document.querySelectorAll('.content-section').forEach(section => {
             section.style.display = 'none';
         });
         
-        // Показываем выбранную секцию
         document.getElementById(sectionName + 'Section').style.display = 'block';
         
-        // Обновляем навигацию
         document.querySelectorAll('.navbar-nav .nav-link').forEach(link => {
             link.classList.remove('active');
         });
         event.target.classList.add('active');
         
-        // Загружаем данные для секции
-        if (sectionName === 'stats') {
+        if (sectionName === 'stats' && this.data) {
             this.displayStats();
-        } else if (sectionName === 'messages') {
+        } else if (sectionName === 'messages' && this.data) {
             this.displayMessages();
-        } else if (sectionName === 'media') {
+        } else if (sectionName === 'media' && this.data) {
             this.displayMediaStats();
         }
     }
 
     displayStats() {
         if (!this.data) return;
-
         this.displayStatsCards();
         this.displayCharts();
     }
@@ -329,10 +354,10 @@ class AvacoreDashboard {
 
 // Инициализация приложения
 document.addEventListener('DOMContentLoaded', () => {
+    console.log("🚀 DOM загружен, инициализируем AvacoreDashboard...");
     window.avacoreDashboard = new AvacoreDashboard();
 });
 
-// Вспомогательные функции
 function showSection(sectionName) {
     if (window.avacoreDashboard) {
         window.avacoreDashboard.showSection(sectionName);
