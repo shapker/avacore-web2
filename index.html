@@ -1,68 +1,794 @@
-def get_user_stats_for_web(user_id):
-    """Собирает статистику пользователя для веб-приложения"""
-    connection = sqlite3.connect('messages.db')
-    cursor = connection.cursor()
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Avacore • Панель управления</title>
+    <meta name="description" content="Avacore - Премиум панель управления для отслеживания сообщений">
     
-    # Общая статистика
-    cursor.execute("""
-        SELECT 
-            COUNT(*) as total_messages,
-            SUM(CASE WHEN is_med = 0 THEN 1 ELSE 0 END) as text_messages,
-            SUM(CASE WHEN is_med = 1 THEN 1 ELSE 0 END) as media_messages,
-            COUNT(DISTINCT sender_id) as unique_senders
-        FROM messages 
-        WHERE user_id = ?
-    """, (str(user_id),))
+    <!-- CSS библиотеки -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     
-    stats = cursor.fetchone()
-    
-    # Статистика по типам медиа
-    cursor.execute("""
-        SELECT 
-            CASE 
-                WHEN path LIKE '%.jpg%' OR path LIKE '%.jpeg%' OR path LIKE '%.png%' THEN 'photo'
-                WHEN path LIKE '%.mp4%' OR path LIKE '%.avi%' OR path LIKE '%.mov%' THEN 'video'
-                WHEN path LIKE '%.ogg%' AND path LIKE '%voice%' THEN 'voice'
-                WHEN path LIKE '%.ogg%' OR path LIKE '%.mp3%' THEN 'audio'
-                WHEN path LIKE '%.webp%' THEN 'sticker'
-                ELSE 'document'
-            END as media_type,
-            COUNT(*) as count
-        FROM messages 
-        WHERE user_id = ? AND is_med = 1
-        GROUP BY media_type
-    """, (str(user_id),))
-    
-    media_stats = dict(cursor.fetchall())
-    
-    # Получаем реальные медиафайлы
-    cursor.execute("""
-        SELECT text, user_login, message_id, is_med, path, datetime(message_id, 'unixepoch') as message_date
-        FROM messages 
-        WHERE user_id = ? AND is_med = 1
-        ORDER BY message_id DESC 
-        LIMIT 50
-    """, (str(user_id),))
-    
-    recent_messages = []
-    for msg in cursor.fetchall():
-        recent_messages.append({
-            'text': msg[0] or '',
-            'user_login': msg[1],
-            'is_media': bool(msg[3]),
-            'path': msg[4],
-            'date': msg[5]
-        })
-    
-    connection.close()
-    
-    return {
-        'user_id': user_id,
-        'total_messages': stats[0] if stats else 0,
-        'text_messages': stats[1] if stats else 0,
-        'media_messages': stats[2] if stats else 0,
-        'unique_senders': stats[3] if stats else 0,
-        'media_stats': media_stats,
-        'recent_messages': recent_messages,
-        'timestamp': datetime.now().isoformat()
-    }
+    <!-- Кастомные стили премиум дизайна -->
+    <style>
+        :root {
+            --primary-gradient: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            --secondary-gradient: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            --success-gradient: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+            --info-gradient: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%);
+            --dark-gradient: linear-gradient(135deg, #2c3e50 0%, #3498db 100%);
+            --glass-bg: rgba(255, 255, 255, 0.1);
+            --glass-border: rgba(255, 255, 255, 0.2);
+            --shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.37);
+            --shadow-hover: 0 12px 40px 0 rgba(31, 38, 135, 0.5);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background: linear-gradient(135deg, #0c0c0c 0%, #1a1a2e 50%, #16213e 100%);
+            font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+            min-height: 100vh;
+            color: #fff;
+            overflow-x: hidden;
+        }
+
+        /* Анимированный фон */
+        .bg-animation {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+            background: 
+                radial-gradient(circle at 20% 80%, rgba(120, 119, 198, 0.1) 0%, transparent 50%),
+                radial-gradient(circle at 80% 20%, rgba(255, 119, 198, 0.1) 0%, transparent 50%),
+                radial-gradient(circle at 40% 40%, rgba(120, 219, 255, 0.05) 0%, transparent 50%);
+            animation: backgroundShift 20s ease-in-out infinite;
+        }
+
+        @keyframes backgroundShift {
+            0%, 100% { transform: scale(1) rotate(0deg); }
+            50% { transform: scale(1.1) rotate(1deg); }
+        }
+
+        /* Навигация */
+        .navbar {
+            background: rgba(15, 15, 25, 0.8) !important;
+            backdrop-filter: blur(20px);
+            border-bottom: 1px solid var(--glass-border);
+            padding: 1rem 0;
+        }
+
+        .navbar-brand {
+            font-weight: 800;
+            font-size: 1.8rem;
+            background: var(--primary-gradient);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .nav-link {
+            color: #fff !important;
+            font-weight: 600;
+            padding: 0.8rem 1.5rem !important;
+            margin: 0 0.3rem;
+            border-radius: 15px;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .nav-link::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: var(--primary-gradient);
+            transition: left 0.3s ease;
+            z-index: -1;
+            border-radius: 15px;
+        }
+
+        .nav-link:hover::before,
+        .nav-link.active::before {
+            left: 0;
+        }
+
+        .nav-link i {
+            margin-right: 0.5rem;
+            font-size: 1.1rem;
+        }
+
+        /* Основной контент */
+        .container {
+            position: relative;
+            z-index: 1;
+        }
+
+        .content-section {
+            display: none;
+            animation: fadeInUp 0.6s ease-out;
+        }
+
+        #statsSection {
+            display: block;
+        }
+
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* Карточки статистики */
+        .stats-card {
+            background: var(--glass-bg);
+            backdrop-filter: blur(20px);
+            border: 1px solid var(--glass-border);
+            border-radius: 20px;
+            padding: 2rem;
+            margin-bottom: 2rem;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .stats-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: var(--primary-gradient);
+        }
+
+        .stats-card:hover {
+            transform: translateY(-10px);
+            box-shadow: var(--shadow-hover);
+        }
+
+        .stats-card .icon {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+            background: var(--primary-gradient);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .stats-card .number {
+            font-size: 2.5rem;
+            font-weight: 800;
+            margin-bottom: 0.5rem;
+            background: linear-gradient(135deg, #fff 0%, #a8edea 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .stats-card .label {
+            font-size: 1rem;
+            color: rgba(255, 255, 255, 0.8);
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        /* Секция заголовков */
+        .section-header {
+            text-align: center;
+            margin-bottom: 3rem;
+            position: relative;
+        }
+
+        .section-header h1 {
+            font-size: 3rem;
+            font-weight: 800;
+            background: linear-gradient(135deg, #fff 0%, #667eea 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 1rem;
+        }
+
+        .section-header p {
+            font-size: 1.2rem;
+            color: rgba(255, 255, 255, 0.7);
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        /* Галерея медиа */
+        .media-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 2rem;
+            margin-top: 2rem;
+        }
+
+        .media-card {
+            background: var(--glass-bg);
+            backdrop-filter: blur(20px);
+            border: 1px solid var(--glass-border);
+            border-radius: 20px;
+            overflow: hidden;
+            transition: all 0.3s ease;
+            position: relative;
+        }
+
+        .media-card:hover {
+            transform: translateY(-5px) scale(1.02);
+            box-shadow: var(--shadow-hover);
+        }
+
+        .media-preview {
+            width: 100%;
+            height: 200px;
+            background: var(--dark-gradient);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .media-preview i {
+            font-size: 4rem;
+            color: rgba(255, 255, 255, 0.3);
+        }
+
+        .media-info {
+            padding: 1.5rem;
+        }
+
+        .media-type {
+            display: inline-block;
+            padding: 0.3rem 1rem;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 1rem;
+        }
+
+        .media-type.photo { background: var(--success-gradient); }
+        .media-type.video { background: var(--secondary-gradient); }
+        .media-type.audio { background: var(--info-gradient); }
+        .media-type.voice { background: var(--primary-gradient); }
+        .media-type.sticker { background: #ffd93d; color: #000; }
+        .media-type.document { background: #6c757d; }
+
+        .media-name {
+            font-size: 1.1rem;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+            color: #fff;
+        }
+
+        .media-meta {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 0.9rem;
+            color: rgba(255, 255, 255, 0.7);
+        }
+
+        .media-date {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        /* Загрузка */
+        .loading-section {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 60vh;
+        }
+
+        .loader {
+            width: 60px;
+            height: 60px;
+            border: 4px solid rgba(255, 255, 255, 0.1);
+            border-top: 4px solid var(--primary-gradient);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin-bottom: 2rem;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .loading-text {
+            font-size: 1.2rem;
+            color: rgba(255, 255, 255, 0.8);
+            text-align: center;
+        }
+
+        /* Ошибка */
+        .error-section {
+            background: var(--glass-bg);
+            backdrop-filter: blur(20px);
+            border: 1px solid var(--glass-border);
+            border-radius: 20px;
+            padding: 3rem;
+            text-align: center;
+            margin: 2rem 0;
+        }
+
+        .error-icon {
+            font-size: 4rem;
+            color: #ff6b6b;
+            margin-bottom: 1.5rem;
+        }
+
+        .error-buttons {
+            display: flex;
+            gap: 1rem;
+            justify-content: center;
+            margin-top: 2rem;
+        }
+
+        /* Адаптивность */
+        @media (max-width: 768px) {
+            .section-header h1 {
+                font-size: 2rem;
+            }
+            
+            .stats-card {
+                padding: 1.5rem;
+            }
+            
+            .stats-card .number {
+                font-size: 2rem;
+            }
+            
+            .media-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .nav-link {
+                padding: 0.6rem 1rem !important;
+                font-size: 0.9rem;
+            }
+        }
+
+        /* Анимации появления */
+        .fade-in {
+            animation: fadeIn 0.6s ease-out;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Анимированный фон -->
+    <div class="bg-animation"></div>
+
+    <!-- Навигация -->
+    <nav class="navbar navbar-expand-lg navbar-dark">
+        <div class="container">
+            <a class="navbar-brand" href="#">
+                <i class="fas fa-shield-alt"></i> Avacore
+            </a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <div class="navbar-nav ms-auto">
+                    <a class="nav-link active" href="#" onclick="showSection('stats')">
+                        <i class="fas fa-chart-bar"></i> Статистика
+                    </a>
+                    <a class="nav-link" href="#" onclick="showSection('media')">
+                        <i class="fas fa-photo-video"></i> Медиа
+                    </a>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Основной контент -->
+    <div class="container mt-5">
+        <!-- Загрузка -->
+        <div id="loadingSection" class="loading-section">
+            <div class="loader"></div>
+            <p class="loading-text">Загрузка вашей статистики...</p>
+        </div>
+
+        <!-- Ошибка -->
+        <div id="errorSection" class="error-section" style="display: none;">
+            <div class="error-icon">
+                <i class="fas fa-exclamation-triangle"></i>
+            </div>
+            <h3>Произошла ошибка</h3>
+            <p id="errorMessage" class="mt-3"></p>
+            <div class="error-buttons">
+                <button class="btn-glass" onclick="location.reload()">
+                    <i class="fas fa-redo"></i> Попробовать снова
+                </button>
+                <button class="btn-glass" onclick="window.close()">
+                    <i class="fas fa-times"></i> Закрыть
+                </button>
+            </div>
+        </div>
+
+        <!-- Основной контент -->
+        <div id="mainContent" style="display: none;">
+            <!-- Статистика -->
+            <div id="statsSection" class="content-section fade-in">
+                <div class="section-header">
+                    <h1><i class="fas fa-chart-pie"></i> Общая статистика</h1>
+                    <p>Полный обзор вашей активности и сохраненных данных</p>
+                </div>
+
+                <div class="row">
+                    <div class="col-md-3">
+                        <div class="stats-card">
+                            <div class="icon">
+                                <i class="fas fa-comments"></i>
+                            </div>
+                            <div class="number" id="totalMessages">0</div>
+                            <div class="label">Всего сообщений</div>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="stats-card">
+                            <div class="icon">
+                                <i class="fas fa-font"></i>
+                            </div>
+                            <div class="number" id="textMessages">0</div>
+                            <div class="label">Текстовых сообщений</div>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="stats-card">
+                            <div class="icon">
+                                <i class="fas fa-photo-video"></i>
+                            </div>
+                            <div class="number" id="mediaMessages">0</div>
+                            <div class="label">Медиафайлов</div>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="stats-card">
+                            <div class="icon">
+                                <i class="fas fa-users"></i>
+                            </div>
+                            <div class="number" id="uniqueSenders">0</div>
+                            <div class="label">Уникальных отправителей</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row mt-4">
+                    <div class="col-12">
+                        <div class="stats-card">
+                            <div class="row text-center">
+                                <div class="col-md-2 mb-3">
+                                    <div class="icon">
+                                        <i class="fas fa-camera"></i>
+                                    </div>
+                                    <div class="number" id="photoCount">0</div>
+                                    <div class="label">Фото</div>
+                                </div>
+                                <div class="col-md-2 mb-3">
+                                    <div class="icon">
+                                        <i class="fas fa-video"></i>
+                                    </div>
+                                    <div class="number" id="videoCount">0</div>
+                                    <div class="label">Видео</div>
+                                </div>
+                                <div class="col-md-2 mb-3">
+                                    <div class="icon">
+                                        <i class="fas fa-microphone"></i>
+                                    </div>
+                                    <div class="number" id="audioCount">0</div>
+                                    <div class="label">Аудио</div>
+                                </div>
+                                <div class="col-md-2 mb-3">
+                                    <div class="icon">
+                                        <i class="fas fa-microphone-alt"></i>
+                                    </div>
+                                    <div class="number" id="voiceCount">0</div>
+                                    <div class="label">Голосовые</div>
+                                </div>
+                                <div class="col-md-2 mb-3">
+                                    <div class="icon">
+                                        <i class="fas fa-smile"></i>
+                                    </div>
+                                    <div class="number" id="stickerCount">0</div>
+                                    <div class="label">Стикеры</div>
+                                </div>
+                                <div class="col-md-2 mb-3">
+                                    <div class="icon">
+                                        <i class="fas fa-file"></i>
+                                    </div>
+                                    <div class="number" id="documentCount">0</div>
+                                    <div class="label">Документы</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Медиа -->
+            <div id="mediaSection" class="content-section fade-in" style="display: none;">
+                <div class="section-header">
+                    <h1><i class="fas fa-photo-video"></i> Медиафайлы</h1>
+                    <p>Просмотр всех сохраненных медиафайлов</p>
+                </div>
+
+                <div class="media-grid" id="mediaGrid">
+                    <!-- Медиафайлы загружаются через JS -->
+                </div>
+
+                <div class="text-center mt-5" id="mediaEmptyState" style="display: none;">
+                    <div class="stats-card">
+                        <i class="fas fa-inbox fa-4x mb-3" style="color: rgba(255,255,255,0.3);"></i>
+                        <h3>Медиафайлов пока нет</h3>
+                        <p class="mt-2">Здесь появятся все сохраненные фото, видео и аудио файлы</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- JavaScript библиотеки -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+
+    <!-- Основной JavaScript код -->
+    <script>
+        // Основные переменные
+        let currentData = null;
+
+        // Функции навигации
+        function showSection(sectionName) {
+            // Скрываем все разделы
+            document.querySelectorAll('.content-section').forEach(section => {
+                section.style.display = 'none';
+            });
+            
+            // Показываем выбранный раздел
+            document.getElementById(sectionName + 'Section').style.display = 'block';
+            
+            // Обновляем активное состояние в навигации
+            document.querySelectorAll('.nav-link').forEach(link => {
+                link.classList.remove('active');
+            });
+            event.target.classList.add('active');
+        }
+
+        // Функция декодирования данных из URL
+        function decompressData() {
+            try {
+                const urlParams = new URLSearchParams(window.location.search);
+                let compressedData = urlParams.get('data');
+                
+                if (!compressedData) {
+                    throw new Error('Данные не найдены в URL. Используйте команду /web в боте.');
+                }
+                
+                console.log('🔗 Получены данные из URL:', compressedData.length, 'символов');
+                
+                // Добавляем padding если необходимо
+                while (compressedData.length % 4 !== 0) {
+                    compressedData += '=';
+                }
+                
+                // Декодируем base64
+                const decodedStr = atob(compressedData);
+                const data = JSON.parse(decodedStr);
+                
+                console.log('📊 Данные успешно декодированы:', data);
+                return data;
+                
+            } catch (error) {
+                console.error('❌ Ошибка декодирования:', error);
+                throw new Error('Не удалось загрузить данные. Пожалуйста, обновите страницу или используйте команду /web в боте.');
+            }
+        }
+
+        // Функция отображения статистики
+        function displayStats(data) {
+            if (!data) return;
+            
+            // Обновляем основные показатели
+            document.getElementById('totalMessages').textContent = data.total_messages || 0;
+            document.getElementById('textMessages').textContent = data.text_messages || 0;
+            document.getElementById('mediaMessages').textContent = data.media_messages || 0;
+            document.getElementById('uniqueSenders').textContent = data.unique_senders || 0;
+
+            // Обновляем статистику по типам медиа
+            const mediaStats = data.media_stats || {};
+            document.getElementById('photoCount').textContent = mediaStats.photo || 0;
+            document.getElementById('videoCount').textContent = mediaStats.video || 0;
+            document.getElementById('audioCount').textContent = mediaStats.audio || 0;
+            document.getElementById('voiceCount').textContent = mediaStats.voice || 0;
+            document.getElementById('stickerCount').textContent = mediaStats.sticker || 0;
+            document.getElementById('documentCount').textContent = mediaStats.document || 0;
+        }
+
+        // Функция отображения медиафайлов
+        function displayMediaFiles(messages) {
+            const mediaGrid = document.getElementById('mediaGrid');
+            const emptyState = document.getElementById('mediaEmptyState');
+            
+            // Фильтруем только медиафайлы
+            const mediaFiles = messages ? messages.filter(msg => msg.is_media && msg.path) : [];
+            
+            if (mediaFiles.length === 0) {
+                mediaGrid.style.display = 'none';
+                emptyState.style.display = 'block';
+                return;
+            }
+            
+            mediaGrid.style.display = 'grid';
+            emptyState.style.display = 'none';
+            
+            let html = '';
+            mediaFiles.forEach((media, index) => {
+                const fileName = media.path ? media.path.split('/').pop() : 'Файл';
+                const fileType = getFileType(media.path);
+                const fileIcon = getFileIcon(fileType);
+                const fileDate = media.date ? new Date(media.date).toLocaleString('ru-RU') : 'Неизвестно';
+                const userName = media.user_login || 'Неизвестно';
+                
+                html += `
+                    <div class="media-card fade-in" style="animation-delay: ${index * 0.1}s">
+                        <div class="media-preview">
+                            <i class="${fileIcon}"></i>
+                        </div>
+                        <div class="media-info">
+                            <span class="media-type ${fileType}">${getFileTypeLabel(fileType)}</span>
+                            <div class="media-name">${fileName}</div>
+                            <div class="media-meta">
+                                <span class="media-user">
+                                    <i class="fas fa-user"></i> ${userName}
+                                </span>
+                                <span class="media-date">
+                                    <i class="fas fa-calendar"></i> ${fileDate}
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            });
+            
+            mediaGrid.innerHTML = html;
+        }
+
+        // Вспомогательные функции для определения типа файла
+        function getFileType(path) {
+            if (!path) return 'document';
+            
+            const ext = path.toLowerCase().split('.').pop();
+            if (['jpg', 'jpeg', 'png', 'gif', 'webp'].includes(ext)) return 'photo';
+            if (['mp4', 'avi', 'mov', 'mkv', 'webm'].includes(ext)) return 'video';
+            if (path.includes('voice') && ext === 'ogg') return 'voice';
+            if (['mp3', 'wav', 'ogg', 'm4a'].includes(ext)) return 'audio';
+            if (ext === 'webp') return 'sticker';
+            return 'document';
+        }
+
+        function getFileIcon(fileType) {
+            const icons = {
+                'photo': 'fas fa-camera',
+                'video': 'fas fa-video',
+                'audio': 'fas fa-microphone',
+                'voice': 'fas fa-microphone-alt',
+                'sticker': 'fas fa-smile',
+                'document': 'fas fa-file'
+            };
+            return icons[fileType] || 'fas fa-file';
+        }
+
+        function getFileTypeLabel(fileType) {
+            const labels = {
+                'photo': 'Фото',
+                'video': 'Видео',
+                'audio': 'Аудио',
+                'voice': 'Голосовое',
+                'sticker': 'Стикер',
+                'document': 'Документ'
+            };
+            return labels[fileType] || 'Файл';
+        }
+
+        // Функция показа ошибки
+        function showError(message) {
+            document.getElementById('loadingSection').style.display = 'none';
+            document.getElementById('errorSection').style.display = 'block';
+            document.getElementById('errorMessage').textContent = message;
+            console.error('❌ Ошибка:', message);
+        }
+
+        // Стили для кнопок
+        const style = document.createElement('style');
+        style.textContent = `
+            .btn-glass {
+                background: var(--glass-bg);
+                backdrop-filter: blur(20px);
+                border: 1px solid var(--glass-border);
+                color: #fff;
+                padding: 0.8rem 2rem;
+                border-radius: 15px;
+                font-weight: 600;
+                transition: all 0.3s ease;
+                text-decoration: none;
+                display: inline-flex;
+                align-items: center;
+                gap: 0.5rem;
+                cursor: pointer;
+            }
+            .btn-glass:hover {
+                background: var(--primary-gradient);
+                transform: translateY(-2px);
+                box-shadow: var(--shadow-hover);
+                color: #fff;
+            }
+        `;
+        document.head.appendChild(style);
+
+        // Основная функция инициализации
+        function initApp() {
+            console.log('🚀 Инициализация Avacore Web...');
+            
+            try {
+                // Пытаемся получить данные из URL
+                const data = decompressData();
+                currentData = data;
+                
+                // Скрываем загрузку и показываем основной контент
+                document.getElementById('loadingSection').style.display = 'none';
+                document.getElementById('mainContent').style.display = 'block';
+                
+                // Отображаем данные
+                displayStats(data);
+                displayMediaFiles(data.recent_messages);
+                
+                console.log('✅ Приложение успешно инициализировано');
+                
+            } catch (error) {
+                showError(error.message);
+            }
+        }
+
+        // Инициализация при загрузке страницы
+        document.addEventListener('DOMContentLoaded', function() {
+            // Запускаем приложение с небольшой задержкой для демонстрации загрузки
+            setTimeout(initApp, 1500);
+        });
+    </script>
+</body>
+</html>
