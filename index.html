@@ -21,9 +21,9 @@
             --surface-light: #334155;
             --text-primary: #f1f5f9;
             --text-secondary: #cbd5e1;
-            --glass: rgba(255, 255, 255, 0.08);
-            --glass-border: rgba(255, 255, 255, 0.12);
-            --glass-hover: rgba(255, 255, 255, 0.15);
+            --glass: rgba(30, 41, 59, 0.8);
+            --glass-border: rgba(255, 255, 255, 0.15);
+            --glass-hover: rgba(255, 255, 255, 0.1);
         }
 
         * {
@@ -40,12 +40,49 @@
             line-height: 1.6;
         }
 
-        .glass {
+        .main-header {
+            text-align: center;
+            padding: 3rem 0 2rem 0;
+        }
+
+        .brand-title {
+            font-size: 3.5rem;
+            font-weight: 700;
+            background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 1.5rem;
+        }
+
+        .nav-container {
+            display: flex;
+            justify-content: center;
+            gap: 1rem;
+            margin-bottom: 3rem;
+        }
+
+        .nav-btn {
             background: var(--glass);
             backdrop-filter: blur(20px);
-            -webkit-backdrop-filter: blur(20px);
             border: 1px solid var(--glass-border);
-            border-radius: 24px;
+            color: var(--text-secondary);
+            padding: 1rem 2rem;
+            border-radius: 16px;
+            text-decoration: none;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .nav-btn:hover, .nav-btn.active {
+            background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
+            color: white;
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(99, 102, 241, 0.3);
+            border-color: transparent;
         }
 
         .glass-card {
@@ -82,44 +119,6 @@
                 0 0 80px rgba(99, 102, 241, 0.1);
         }
 
-        .navbar {
-            background: rgba(15, 23, 42, 0.8) !important;
-            backdrop-filter: blur(20px);
-            -webkit-backdrop-filter: blur(20px);
-            border-bottom: 1px solid var(--glass-border);
-            padding: 1rem 0;
-        }
-
-        .navbar-brand {
-            font-weight: 700;
-            font-size: 1.5rem;
-            background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
-        }
-
-        .nav-link {
-            font-weight: 500;
-            margin: 0 4px;
-            border-radius: 12px;
-            transition: all 0.3s ease;
-            color: var(--text-secondary) !important;
-            padding: 0.75rem 1.25rem !important;
-        }
-
-        .nav-link:hover, .nav-link.active {
-            background: var(--glass-hover);
-            color: var(--text-primary) !important;
-            transform: translateY(-2px);
-        }
-
-        .nav-link.active {
-            background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
-            color: white !important;
-            box-shadow: 0 8px 25px rgba(99, 102, 241, 0.3);
-        }
-
         .stat-card {
             border: none;
             border-radius: 20px;
@@ -127,6 +126,7 @@
             position: relative;
             overflow: hidden;
             margin-bottom: 1.5rem;
+            background: linear-gradient(135deg, rgba(30, 41, 59, 0.9) 0%, rgba(51, 65, 85, 0.9) 100%);
         }
 
         .stat-card .card-body {
@@ -183,7 +183,7 @@
             animation: fadeInUp 0.6s ease-out;
         }
 
-        #statsSection {
+        #messagesSection {
             display: block;
         }
 
@@ -212,6 +212,8 @@
             border-radius: 20px;
             margin-bottom: 2rem;
             transition: all 0.4s ease;
+            background: var(--glass);
+            backdrop-filter: blur(20px);
         }
 
         .card:hover {
@@ -219,7 +221,7 @@
         }
 
         .card-header {
-            background: rgba(30, 41, 59, 0.6);
+            background: rgba(30, 41, 59, 0.8);
             border-bottom: 1px solid var(--glass-border);
             padding: 1.5rem 2rem;
             border-radius: 20px 20px 0 0 !important;
@@ -250,7 +252,7 @@
             border-bottom: 1px solid var(--glass-border);
             font-weight: 600;
             color: var(--text-secondary);
-            background: rgba(30, 41, 59, 0.4);
+            background: rgba(30, 41, 59, 0.6);
             padding: 1rem 1.5rem;
         }
 
@@ -277,22 +279,15 @@
             margin-top: 4rem;
             border-top: 1px solid var(--glass-border);
             background: rgba(15, 23, 42, 0.5);
+            padding: 2rem 0;
         }
 
         h1 {
             color: var(--text-primary);
             font-weight: 700;
-            margin-bottom: 0.5rem;
+            margin-bottom: 2rem;
             font-size: 2.5rem;
             background: linear-gradient(135deg, var(--text-primary) 0%, var(--text-secondary) 100%);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
-        }
-
-        h1 i {
-            margin-right: 15px;
-            background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
             background-clip: text;
@@ -316,22 +311,6 @@
             }
         }
 
-        .btn-outline-primary {
-            border: 2px solid var(--primary);
-            color: var(--primary);
-            border-radius: 12px;
-            padding: 0.75rem 1.5rem;
-            font-weight: 500;
-            transition: all 0.3s ease;
-        }
-
-        .btn-outline-primary:hover {
-            background: var(--primary);
-            color: white;
-            transform: translateY(-2px);
-            box-shadow: 0 10px 25px rgba(99, 102, 241, 0.3);
-        }
-
         .media-type-card {
             border-radius: 20px;
             padding: 2rem;
@@ -340,6 +319,7 @@
             position: relative;
             overflow: hidden;
             transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            background: linear-gradient(135deg, rgba(30, 41, 59, 0.9) 0%, rgba(51, 65, 85, 0.9) 100%);
         }
 
         .media-type-card::before {
@@ -370,12 +350,12 @@
                 0 0 100px rgba(99, 102, 241, 0.15);
         }
 
-        .media-type-card.photo { background: linear-gradient(135deg, rgba(6, 182, 212, 0.15) 0%, rgba(99, 102, 241, 0.15) 100%); }
-        .media-type-card.video { background: linear-gradient(135deg, rgba(139, 92, 246, 0.15) 0%, rgba(236, 72, 153, 0.15) 100%); }
-        .media-type-card.audio { background: linear-gradient(135deg, rgba(245, 158, 11, 0.15) 0%, rgba(217, 70, 239, 0.15) 100%); }
-        .media-type-card.voice { background: linear-gradient(135deg, rgba(16, 185, 129, 0.15) 0%, rgba(6, 182, 212, 0.15) 100%); }
-        .media-type-card.sticker { background: linear-gradient(135deg, rgba(249, 115, 22, 0.15) 0%, rgba(245, 158, 11, 0.15) 100%); }
-        .media-type-card.document { background: linear-gradient(135deg, rgba(59, 130, 246, 0.15) 0%, rgba(139, 92, 246, 0.15) 100%); }
+        .media-type-card.photo { border-left: 4px solid #06b6d4; }
+        .media-type-card.video { border-left: 4px solid #8b5cf6; }
+        .media-type-card.audio { border-left: 4px solid #f59e0b; }
+        .media-type-card.voice { border-left: 4px solid #10b981; }
+        .media-type-card.sticker { border-left: 4px solid #f97316; }
+        .media-type-card.document { border-left: 4px solid #3b82f6; }
 
         .media-type-card i {
             font-size: 3rem;
@@ -413,7 +393,6 @@
             display: inline-flex;
             align-items: center;
             margin-bottom: 2rem;
-            animation: fadeIn 0.6s ease-out;
         }
 
         .particles-container {
@@ -443,18 +422,9 @@
 
         .section-title {
             position: relative;
-            margin-bottom: 3rem;
-        }
-
-        .section-title::after {
-            content: '';
-            position: absolute;
-            bottom: -10px;
-            left: 0;
-            width: 60px;
-            height: 3px;
-            background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
-            border-radius: 2px;
+            margin-bottom: 2rem;
+            padding-bottom: 1rem;
+            border-bottom: 1px solid var(--glass-border);
         }
 
         .stats-grid {
@@ -470,20 +440,45 @@
             margin: 2rem 0;
         }
 
-        .pulse {
-            animation: pulse 2s infinite;
+        .media-preview {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: 1rem;
+            margin-top: 2rem;
         }
 
-        @keyframes pulse {
-            0% {
-                box-shadow: 0 0 0 0 rgba(99, 102, 241, 0.4);
-            }
-            70% {
-                box-shadow: 0 0 0 10px rgba(99, 102, 241, 0);
-            }
-            100% {
-                box-shadow: 0 0 0 0 rgba(99, 102, 241, 0);
-            }
+        .media-item {
+            border-radius: 12px;
+            overflow: hidden;
+            background: var(--glass);
+            border: 1px solid var(--glass-border);
+            transition: all 0.3s ease;
+        }
+
+        .media-item:hover {
+            transform: scale(1.05);
+            border-color: var(--primary);
+        }
+
+        .media-preview-img {
+            width: 100%;
+            height: 150px;
+            object-fit: cover;
+            background: rgba(0, 0, 0, 0.3);
+        }
+
+        .media-info {
+            padding: 0.75rem;
+            font-size: 0.85rem;
+        }
+
+        .media-type-badge {
+            background: var(--primary);
+            color: white;
+            padding: 0.25rem 0.5rem;
+            border-radius: 6px;
+            font-size: 0.75rem;
+            font-weight: 500;
         }
     </style>
 </head>
@@ -491,26 +486,25 @@
     <!-- Particles Background -->
     <div class="particles-container" id="particles"></div>
 
-    <nav class="navbar navbar-expand-lg navbar-dark glass">
-        <div class="container">
-            <a class="navbar-brand" href="#">
-                <i class="fas fa-shield-alt me-2"></i>Avacore
-            </a>
-            <div class="navbar-nav ms-auto">
-                <a class="nav-link active" href="#" onclick="showSection('stats')">
-                    <i class="fas fa-chart-bar me-2"></i>Статистика
+    <div class="container">
+        <!-- Header -->
+        <div class="main-header">
+            <div class="brand-title">
+                <i class="fas fa-shield-alt"></i> AVACORE
+            </div>
+            <div class="nav-container">
+                <a class="nav-btn active" href="#" onclick="showSection('messages')">
+                    <i class="fas fa-comments"></i>Сообщения
                 </a>
-                <a class="nav-link" href="#" onclick="showSection('messages')">
-                    <i class="fas fa-comments me-2"></i>Сообщения
+                <a class="nav-btn" href="#" onclick="showSection('stats')">
+                    <i class="fas fa-chart-bar"></i>Статистика
                 </a>
-                <a class="nav-link" href="#" onclick="showSection('media')">
-                    <i class="fas fa-photo-video me-2"></i>Медиа
+                <a class="nav-btn" href="#" onclick="showSection('media')">
+                    <i class="fas fa-photo-video"></i>Медиа
                 </a>
             </div>
         </div>
-    </nav>
 
-    <div class="container mt-5">
         <!-- Загрузка -->
         <div id="loadingSection" class="text-center py-5">
             <div class="spinner-border loading-spinner" style="width: 4rem; height: 4rem;" role="status">
@@ -531,18 +525,40 @@
 
         <!-- Основной контент -->
         <div id="mainContent" style="display: none;">
-            <!-- Статистика -->
-            <div id="statsSection" class="content-section">
-                <div class="row">
-                    <div class="col-12">
-                        <h1 class="section-title">
-                            <i class="fas fa-chart-bar"></i>Статистика
-                        </h1>
-                        <div class="last-update pulse">
-                            <i class="fas fa-sync-alt gradient-text me-3"></i>
-                            <span id="lastUpdate" class="text-muted">Обновление данных...</span>
+            <!-- Сообщения -->
+            <div id="messagesSection" class="content-section">
+                <h1 class="section-title">
+                    <i class="fas fa-comments"></i>История сообщений
+                </h1>
+                <div class="glass-card">
+                    <div class="card-body p-0">
+                        <div class="table-responsive">
+                            <table class="table table-hover mb-0">
+                                <thead>
+                                    <tr>
+                                        <th><i class="fas fa-tag me-2"></i>Тип</th>
+                                        <th><i class="fas fa-user me-2"></i>Отправитель</th>
+                                        <th><i class="fas fa-align-left me-2"></i>Содержание</th>
+                                        <th><i class="fas fa-clock me-2"></i>Дата</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="messagesTable">
+                                    <!-- Сообщения загружаются через JS -->
+                                </tbody>
+                            </table>
                         </div>
                     </div>
+                </div>
+            </div>
+
+            <!-- Статистика -->
+            <div id="statsSection" class="content-section">
+                <h1 class="section-title">
+                    <i class="fas fa-chart-bar"></i>Статистика
+                </h1>
+                <div class="last-update">
+                    <i class="fas fa-sync-alt gradient-text me-3"></i>
+                    <span id="lastUpdate" class="text-muted">Обновление данных...</span>
                 </div>
 
                 <div class="stats-grid" id="statsCards">
@@ -577,57 +593,30 @@
                 </div>
             </div>
 
-            <!-- Сообщения -->
-            <div id="messagesSection" class="content-section" style="display: none;">
-                <div class="row">
-                    <div class="col-12">
-                        <h1 class="section-title">
-                            <i class="fas fa-comments"></i>История сообщений
-                        </h1>
+            <!-- Медиа -->
+            <div id="mediaSection" class="content-section">
+                <h1 class="section-title">
+                    <i class="fas fa-photo-video"></i>Медиафайлы
+                </h1>
+                
+                <div class="glass-card mb-4">
+                    <div class="card-header">
+                        <h5><i class="fas fa-chart-pie"></i> Статистика по типам медиа</h5>
                     </div>
-                </div>
-                <div class="row mt-4">
-                    <div class="col-12">
-                        <div class="glass-card">
-                            <div class="card-body p-0">
-                                <div class="table-responsive">
-                                    <table class="table table-hover mb-0">
-                                        <thead>
-                                            <tr>
-                                                <th><i class="fas fa-tag me-2"></i>Тип</th>
-                                                <th><i class="fas fa-user me-2"></i>Отправитель</th>
-                                                <th><i class="fas fa-align-left me-2"></i>Содержание</th>
-                                                <th><i class="fas fa-clock me-2"></i>Дата</th>
-                                            </tr>
-                                        </thead>
-                                        <tbody id="messagesTable">
-                                            <!-- Сообщения загружаются через JS -->
-                                        </tbody>
-                                    </table>
-                                </div>
-                            </div>
+                    <div class="card-body">
+                        <div class="row g-4" id="mediaStatsCards">
+                            <!-- Статистика медиа загружается через JS -->
                         </div>
                     </div>
                 </div>
-            </div>
 
-            <!-- Медиа -->
-            <div id="mediaSection" class="content-section" style="display: none;">
-                <div class="row">
-                    <div class="col-12">
-                        <h1 class="section-title">
-                            <i class="fas fa-photo-video"></i>Медиафайлы
-                        </h1>
+                <div class="glass-card">
+                    <div class="card-header">
+                        <h5><i class="fas fa-images"></i> Последние медиафайлы</h5>
                     </div>
-                </div>
-                <div class="row mt-4">
-                    <div class="col-12">
-                        <div class="glass-card">
-                            <div class="card-body">
-                                <div class="row g-4" id="mediaStatsCards">
-                                    <!-- Статистика медиа загружается через JS -->
-                                </div>
-                            </div>
+                    <div class="card-body">
+                        <div id="mediaPreview" class="media-preview">
+                            <!-- Превью медиафайлов загружается через JS -->
                         </div>
                     </div>
                 </div>
@@ -635,7 +624,7 @@
         </div>
     </div>
 
-    <footer class="py-5 mt-5">
+    <footer>
         <div class="container text-center">
             <p class="text-muted mb-0">Avacore &copy; 2025</p>
         </div>
@@ -653,7 +642,6 @@
                 const particle = document.createElement('div');
                 particle.className = 'particle';
                 
-                // Случайные параметры
                 const size = Math.random() * 100 + 20;
                 const posX = Math.random() * 100;
                 const posY = Math.random() * 100;
@@ -682,10 +670,7 @@
             }
             
             try {
-                // Декодируем base64
                 const decodedData = atob(dataParam);
-                
-                // Парсим JSON
                 const data = JSON.parse(decodedData);
                 return data;
             } catch (error) {
@@ -710,16 +695,16 @@
                 section.style.display = 'none';
             });
             
-            // Убираем активный класс со всех ссылок
-            const navLinks = document.querySelectorAll('.nav-link');
-            navLinks.forEach(link => {
-                link.classList.remove('active');
+            // Убираем активный класс со всех кнопок
+            const navBtns = document.querySelectorAll('.nav-btn');
+            navBtns.forEach(btn => {
+                btn.classList.remove('active');
             });
             
             // Показываем выбранную секцию
             document.getElementById(sectionName + 'Section').style.display = 'block';
             
-            // Добавляем активный класс к выбранной ссылке
+            // Добавляем активный класс к выбранной кнопке
             event.target.classList.add('active');
             
             // Перерисовываем графики при показе статистики
@@ -740,29 +725,25 @@
                     type: 'total',
                     icon: 'fas fa-comments',
                     value: data.total_messages,
-                    label: 'Всего сообщений',
-                    gradient: 'linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%)'
+                    label: 'Всего сообщений'
                 },
                 {
                     type: 'text',
                     icon: 'fas fa-font',
                     value: data.text_messages,
-                    label: 'Текстовые сообщения',
-                    gradient: 'linear-gradient(135deg, #10b981 0%, #06b6d4 100%)'
+                    label: 'Текстовые сообщения'
                 },
                 {
                     type: 'media',
                     icon: 'fas fa-photo-video',
                     value: data.media_messages,
-                    label: 'Медиафайлы',
-                    gradient: 'linear-gradient(135deg, #8b5cf6 0%, #ec4899 100%)'
+                    label: 'Медиафайлы'
                 },
                 {
                     type: 'senders',
                     icon: 'fas fa-users',
                     value: data.unique_senders,
-                    label: 'Уникальных отправителей',
-                    gradient: 'linear-gradient(135deg, #f59e0b 0%, #d946ef 100%)'
+                    label: 'Уникальных отправителей'
                 }
             ];
             
@@ -770,7 +751,7 @@
             
             cards.forEach(card => {
                 cardsHTML += `
-                    <div class="glass-card stat-card">
+                    <div class="stat-card glass-card">
                         <div class="card-body text-center">
                             <i class="${card.icon}"></i>
                             <div class="value">${card.value}</div>
@@ -841,6 +822,87 @@
             });
             
             mediaStatsCards.innerHTML = mediaHTML;
+        }
+
+        // Обновляет превью медиафайлов
+        function updateMediaPreview(data) {
+            const mediaPreview = document.getElementById('mediaPreview');
+            
+            // Фильтруем только медиафайлы
+            const mediaFiles = data.recent_messages.filter(msg => msg.is_media);
+            
+            if (!mediaFiles || mediaFiles.length === 0) {
+                mediaPreview.innerHTML = `
+                    <div class="col-12 text-center py-5 text-muted">
+                        <i class="fas fa-inbox fa-3x mb-3"></i><br>
+                        Нет медиафайлов для отображения
+                    </div>
+                `;
+                return;
+            }
+            
+            let previewHTML = '';
+            
+            mediaFiles.forEach(media => {
+                const fileType = getFileType(media.path);
+                const icon = getFileIcon(fileType);
+                const fileName = media.path.split('/').pop() || 'Файл';
+                
+                previewHTML += `
+                    <div class="media-item">
+                        <div class="text-center p-3">
+                            <i class="${icon} fa-3x mb-2" style="color: ${getFileColor(fileType)}"></i>
+                            <div class="media-info">
+                                <div class="media-type-badge">${fileType}</div>
+                                <div class="mt-2 small text-truncate">${fileName}</div>
+                                <div class="text-muted small mt-1">${media.date || 'Неизвестно'}</div>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            });
+            
+            mediaPreview.innerHTML = previewHTML;
+        }
+
+        // Определяет тип файла по пути
+        function getFileType(path) {
+            if (!path) return 'Файл';
+            
+            if (path.includes('photo')) return 'Фото';
+            if (path.includes('video')) return 'Видео';
+            if (path.includes('voice')) return 'Голосовое';
+            if (path.includes('audio')) return 'Аудио';
+            if (path.includes('sticker')) return 'Стикер';
+            if (path.includes('document')) return 'Документ';
+            
+            return 'Файл';
+        }
+
+        // Возвращает иконку для типа файла
+        function getFileIcon(fileType) {
+            switch(fileType) {
+                case 'Фото': return 'fas fa-image';
+                case 'Видео': return 'fas fa-video';
+                case 'Голосовое': return 'fas fa-microphone';
+                case 'Аудио': return 'fas fa-music';
+                case 'Стикер': return 'fas fa-face-smile';
+                case 'Документ': return 'fas fa-file';
+                default: return 'fas fa-file';
+            }
+        }
+
+        // Возвращает цвет для типа файла
+        function getFileColor(fileType) {
+            switch(fileType) {
+                case 'Фото': return '#06b6d4';
+                case 'Видео': return '#8b5cf6';
+                case 'Голосовое': return '#10b981';
+                case 'Аудио': return '#f59e0b';
+                case 'Стикер': return '#f97316';
+                case 'Документ': return '#3b82f6';
+                default: return '#6366f1';
+            }
         }
 
         // Обновляет таблицу сообщений
@@ -986,24 +1048,20 @@
 
         // Инициализация при загрузке страницы
         document.addEventListener('DOMContentLoaded', function() {
-            // Создаем частицы фона
             createParticles();
             
-            // Получаем данные из URL
             const data = getUrlData();
             
             if (data) {
-                // Скрываем загрузку и показываем контент
                 document.getElementById('loadingSection').style.display = 'none';
                 document.getElementById('mainContent').style.display = 'block';
                 
-                // Обновляем интерфейс
                 updateStatsCards(data);
                 updateMediaStats(data);
+                updateMediaPreview(data);
                 updateMessagesTable(data);
                 createCharts(data);
                 
-                // Обновляем время последнего обновления
                 const now = new Date();
                 document.getElementById('lastUpdate').textContent = 
                     `Последнее обновление: ${now.toLocaleDateString('ru-RU')} в ${now.toLocaleTimeString('ru-RU')}`;
